@@ -1,31 +1,47 @@
-import { TestBed, async } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import {NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {async, ComponentFixture} from '@angular/core/testing';
+import {NO_ERRORS_SCHEMA} from '@angular/core';
+
+import {ConfigureFn, configureTests} from '@lib/testing';
+
+import {AngularFireDatabase} from '@angular/fire/database';
+import {AppComponent} from './app.component';
 
 describe('AppComponent', () => {
+  let fixture: ComponentFixture<AppComponent>;
+  let component: AppComponent;
+
+  const db = {
+    list: () => {
+      return {
+        valueChanges: () => {}
+      };
+    }
+  };
+
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
-      ],
-    }).compileComponents();
+    const configure: ConfigureFn = testBed => {
+      testBed.configureTestingModule({
+        declarations: [AppComponent],
+        imports: [NoopAnimationsModule],
+        providers: [
+          { provide: AngularFireDatabase, useValue: db}
+        ],
+        schemas: [NO_ERRORS_SCHEMA],
+      });
+    };
+
+    configureTests(configure).then(testBed => {
+      fixture = testBed.createComponent(AppComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    });
   }));
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
+  it('should create the app', async(() => {
+    const app = component;
     expect(app).toBeTruthy();
-  });
-
-  it(`should have as title 'my-app'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('my-app');
-  });
-
-  it('should render title in a h1 tag', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome to my-app!');
-  });
+  }));
 });
+
+test.todo('test success');
